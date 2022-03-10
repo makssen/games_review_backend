@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        input {
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <form enctype="multipart/form-data">
+        <input type="text" placeholder="title" name="title">
+        <input type="text" placeholder="text" name="text">
+        <select name="type">
+            <option value="book">Книга</option>
+            <option value="book">Игра</option>
+            <option value="book">Кино</option>
+        </select>
+        <input type="text" placeholder="tags" name="tags">
+        <input type="number" placeholder="rating" name="rating">
+        <input type="file" name="images" multiple>
+        <button>Send</button>
+    </form>
+
+    <script>
+        const form = document.querySelector('form');
+        let images = [];
+
+        const base64 = (e) => {
+            images.push(...e.target.files);
+        }
+
+        form.addEventListener('submit', async(e) => {
+            e.preventDefault();
+            let data = new FormData();
+            data.append('title', form.title.value);
+            data.append('text', form.text.value);
+            data.append('type', form.type.value);
+            data.append('rating', form.rating.value);
+            images.forEach(file => data.append('images', file));
+            form.tags.value.split(' ').forEach(item => data.append('tags', item))
+
+
+
+            await fetch('http://localhost:8080/api/post', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJtYWtzLnNlbkBtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNjQ2OTA2NjUyLCJleHAiOjE2NDY5OTMwNTJ9.ljUysCYDPbAwikBTDGXjF4vaIXOKnfTj1P1fALomlBg'
+                    },
+                    body: data
+                }).then(resp => resp.json())
+                .then(resp => console.log(resp))
+                .catch(err => console.log(err))
+        });
+
+        form.images.addEventListener('change', base64);
+    </script>
+</body>
+
+</html>
